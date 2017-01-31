@@ -1,0 +1,32 @@
+WinBoard 4.0.3 + GNUChess
+StartChildProcess (dir="") GNUChess
+820 >first : xboard
+820 >first : new
+random
+820 >first : level 40 5 0
+820 >first : hard
+1040 <first : Chess
+1210 <first : Illegal move (no matching move)board
+150720 >first : time 30000
+otim 30000
+150720 >first : g1f3
+150720 <first : 1. g1f3
+151050 <first : 1. ... d7d5
+151210 <first : My move is: d7d5
+Interrupting first
+155270 >first : time 30000
+otim 29599
+155270 >first : d2d4
+155330 <first : 2. d2d4
+155330 <first : 2. ... e7e6
+155440 <first : My move is: e7e6
+Interrupting first
+156540 >first : time 29946
+otim 29494
+156540 >first : e2e3
+156590 <first : 3. e2e3
+172470 <first : 3. ... g8f6
+172740 <first : My move is: g8f6
+Interrupting first
+1066540 >first : force
+1066540 >first : quit

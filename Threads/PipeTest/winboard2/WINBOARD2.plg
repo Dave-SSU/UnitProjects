@@ -1,0 +1,77 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: WINBOARD2 - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP9341.BAT" with contents
+[
+@echo off
+flex -L ..\winboard\parser.l
+]
+Creating command line "C:\WINDOWS\TEMP\RSP9341.BAT"
+Creating temporary file "C:\WINDOWS\TEMP\RSP9342.TMP" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Debug/" /Fp"Debug/WINBOARD2.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\cm7000\EngineComTest\winboard\backend.c"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP9342.TMP" 
+Performing Custom Build Step on ..\winboard\parser.l
+Creating temporary file "C:\WINDOWS\TEMP\RSP9365.TMP" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib comctl32.lib winmm.lib oldnames.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/WINBOARD2.pdb" /debug /machine:I386 /out:"Debug/WINBOARD2.exe" /pdbtype:sept 
+.\Debug\backend.obj
+.\Debug\common.obj
+.\Debug\gamelist.obj
+.\Debug\lists.obj
+.\Debug\moves.obj
+.\Debug\parser.obj
+.\Debug\pgntags.obj
+.\Debug\wedittags.obj
+.\Debug\wgamelist.obj
+.\Debug\winboard.obj
+.\Debug\wsockerr.obj
+.\Debug\zippy.obj
+.\Debug\winboard.res
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSP9365.TMP"
+<h3>Output Window</h3>
+Compiling...
+backend.c
+Linking...
+Creating temporary file "C:\WINDOWS\TEMP\RSPA0D3.TMP" with contents
+[
+/nologo /o"Debug/WINBOARD2.bsc" 
+.\Debug\backend.sbr
+.\Debug\common.sbr
+.\Debug\gamelist.sbr
+.\Debug\lists.sbr
+.\Debug\moves.sbr
+.\Debug\parser.sbr
+.\Debug\pgntags.sbr
+.\Debug\wedittags.sbr
+.\Debug\wgamelist.sbr
+.\Debug\winboard.sbr
+.\Debug\wsockerr.sbr
+.\Debug\zippy.sbr]
+Creating command line "bscmake.exe @C:\WINDOWS\TEMP\RSPA0D3.TMP"
+Creating browse info file...
+<h3>Output Window</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSPA0E5.BAT" with contents
+[
+@echo off
+copy .\Debug\WINBOARD2.exe ..\runtime /y
+]
+Creating command line "C:\WINDOWS\TEMP\RSPA0E5.BAT"
+
+        1 file(s) copied
+
+
+
+<h3>Results</h3>
+WINBOARD2.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

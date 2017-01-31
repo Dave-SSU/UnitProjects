@@ -1,0 +1,325 @@
+From: Don Fong
+Date: Mon, 14 Jun 1999 00:55:02 -0700 (PDT)
+
+here are the changes i made to get winboard to build under
+borland c++ 4.5 .
+
+the line numbers below may not be accurate.  but since this is a
+context diff the changes should be understandable.  the reason the
+line numbers may be wrong is that i did the diffs against a newer
+source version than the version that i actually made the changes to.
+
+i more or less rewrote the makefile, and i only build the
+"winboard" target.
+
+i added a file "bcc32.cfg" which contains the compiler flags i
+used for the build.
+
+let me know if you have any questions.
+
+
+
+
+*** config.h Thu Jun  3 15:13:40 1999
+--- ../n/config.h Mon Feb 15 10:30:06 1999
+***************
+*** 56,66 ****
+  
+  /*#undef X_WCHAR*/
+  
+- # ifndef __BORLANDC__
+  #define WIN32 1
+- # else
+- #define WIN32
+- # endif
+  
+  #define ZIPPY 1
+  
+--- 56,62 ----
+***************
+*** 119,130 ****
+  */
+  #define EMULATE_RSH 1
+  #define ATTENTION 1
+- 
+- # ifdef __BORLANDC__
+- # define _strdup(x) strdup(x)
+- # define STRICT
+- 
+- # define _winmajor 3	/* windows 95 */
+- # define SCF_DEFAULT 0x0000
+- # define SCF_ALL 0x0004
+- # endif  __BORLANDC__
+--- 115,117 ----
+
+
+
+
+*** winboard.c Thu Jun  3 18:08:16 1999
+--- ../n/winboard.c Thu Feb 25 21:24:42 1999
+***************
+*** 972,977 ****
+--- 992,998 ----
+      bs++;
+    }
+    ExitArgError("Unrecognized board size value", name);
++   return 0; /* not reached */
+  }
+  
+  
+***************
+*** 5281,5287 ****
+    openFileName.nFileExtension    = 0;
+    openFileName.lpstrDefExt       = defExt;
+    openFileName.lCustData         = (LONG) number;
+!   openFileName.lpfnHook          = oldDialog ? (LPOFNHOOKPROC) OldOpenFileHook : (LPOFNHOOKPROC) OpenFileHook;
+    openFileName.lpTemplateName    = (LPSTR)(oldDialog ? 1536 : DLG_IndexNumber);
+  
+    if (write ? GetSaveFileName(&openFileName) : 
+--- 5321,5327 ----
+    openFileName.nFileExtension    = 0;
+    openFileName.lpstrDefExt       = defExt;
+    openFileName.lCustData         = (LONG) number;
+!   openFileName.lpfnHook          = oldDialog ? OldOpenFileHook : OpenFileHook;
+    openFileName.lpTemplateName    = (LPSTR)(oldDialog ? 1536 : DLG_IndexNumber);
+  
+    if (write ? GetSaveFileName(&openFileName) : 
+***************
+*** 6042,6054 ****
+        sprintf(buf, "%s:\n%s", str, buf2);
+      } else {
+        ErrorMap *em = errmap;
+- # ifdef __BORLANDC__
+-       while (em->err_no != 0 && em->err_no != error) em++;
+-       if (em->err_no != 0) {
+- # else
+        while (em->errno != 0 && em->errno != error) em++;
+        if (em->errno != 0) {
+- # endif
+  	sprintf(buf, "%s:\n%s", str, em->msg);
+        } else {
+  	sprintf(buf, "%s:\nError code %d", str, error);
+--- 6148,6155 ----
+***************
+*** 6098,6110 ****
+        sprintf(buf, "%s:\n%s", str, buf2);
+      } else {
+        ErrorMap *em = errmap;
+- # ifdef __BORLANDC__
+-       while (em->err_no != 0 && em->err_no != error) em++;
+-       if (em->err_no != 0) {
+- # else
+        while (em->errno != 0 && em->errno != error) em++;
+        if (em->errno != 0) {
+- # endif
+  	sprintf(buf, "%s:\n%s", str, em->msg);
+        } else {
+  	sprintf(buf, "%s:\nError code %d", str, error);
+--- 6199,6206 ----
+***************
+*** 7725,7735 ****
+    is = (InputSource *) arg;
+    while (is->hThread != NULL) {
+      is->count = recv(is->sock, is->buf, INPUT_SOURCE_BUF_SIZE, 0);
+- # ifdef __BORLANDC__
+-     if ((int)is->count == SOCKET_ERROR) {
+- # else
+      if (is->count == SOCKET_ERROR) {
+- # endif
+        is->count = (DWORD) -1;
+        is->error = WSAGetLastError();
+      } else {
+--- 7830,7836 ----
+
+
+
+*** wsockerr.h Thu Jun  3 18:03:12 1999
+--- ../n/wsockerr.h Tue May 12 23:49:52 1998
+***************
+*** 2,12 ****
+  /* These messages ought to be in the Windows message catalog! */
+  
+  typedef struct {
+- # ifdef __BORLANDC__
+-     int err_no;
+- # else
+      int errno;
+- # endif
+      char* msg;
+  } ErrorMap;
+  
+--- 2,8 ----
+
+
+
+*** winboard.def Thu Jun  3 16:37:58 1999
+--- ../n/winboard.def Thu Nov 18 10:02:42 1993
+***************
+*** 19,21 ****
+--- 19,22 ----
+  EXPORTS
+  	WndProc   	@1   ; name of window processing function
+  	About     	@2   ; name of "About" processing function
++ 	ClockTimerProc  @3   ; clock timer function
+
+
+
+*** winboard.rc Thu Jun  3 15:58:54 1999
+--- ../n/winboard.rc Thu Feb 25 21:17:42 1999
+***************
+*** 264,273 ****
+      LTEXT           "Sorry Charlie",OPT_ErrorText,27,4,130,25
+  END
+  
+! DLG_Colorize DIALOG 0, 0, 183, 52
+  STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+  CAPTION "ICS Interaction Colors"
+! FONT 8, "MS Sans Serif"
+  BEGIN
+      PUSHBUTTON      "&Choose Color...",OPT_ChooseColor,15,29,51,14,WS_GROUP
+      CONTROL         "&Bold",OPT_Bold,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+--- 264,273 ----
+      LTEXT           "Sorry Charlie",OPT_ErrorText,27,4,130,25
+  END
+  
+! DLG_Colorize DIALOGEX 0, 0, 183, 52
+  STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+  CAPTION "ICS Interaction Colors"
+! FONT 8, "MS Sans Serif", 0, 0, 0x1
+  BEGIN
+      PUSHBUTTON      "&Choose Color...",OPT_ChooseColor,15,29,51,14,WS_GROUP
+      CONTROL         "&Bold",OPT_Bold,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+*** winboard.h Thu Jun  3 01:52:54 1999
+--- ../n/winboard.h Thu Feb 25 21:23:56 1999
+***************
+*** 64,76 ****
+  /* Functions */
+  
+! BOOL InitApplication(HINSTANCE);
+! BOOL InitInstance(HINSTANCE, int, LPSTR);
+  LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+  LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+  LRESULT CALLBACK BoardSizeDlg(HWND, UINT, WPARAM, LPARAM);
+--- 64,77 ----
+  /* Functions */
+  
+! BOOL InitApplication(HANDLE);
+! BOOL InitInstance(HANDLE, int, LPSTR);
+  LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+  LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+  LRESULT CALLBACK BoardSizeDlg(HWND, UINT, WPARAM, LPARAM);
+***************
+*** 95,101 ****
+  DWORD NonOvlInputThread(LPVOID arg);
+  DWORD SocketInputThread(LPVOID arg);
+  VOID ChangeColor(HWND hwnd, COLORREF *which);
+! VOID ChangeBoardSize(BoardSize newSize);
+  BOOL APIENTRY MyCreateFont(MyFont *font);
+  VOID ErrorPopDown(VOID);
+  VOID EnsureOnScreen(int *x, int *y);
+--- 96,102 ----
+  DWORD NonOvlInputThread(LPVOID arg);
+  DWORD SocketInputThread(LPVOID arg);
+  VOID ChangeColor(HWND hwnd, COLORREF *which);
+! VOID ChangeBoardSize(int newSize);
+  BOOL APIENTRY MyCreateFont(MyFont *font);
+  VOID ErrorPopDown(VOID);
+  VOID EnsureOnScreen(int *x, int *y);
+
+
+
+
+
+
+
+
+*** makefile.mak Thu Jun  3 15:13:40 1999
+ENV=WIN32
+CPU=i386
+
+cc=bcc32
+rc=brc32 -w32 -Ic:/bc45/include;.
+link=$(cc)
+
+# Use up to date help compiler
+hc="c:\program files\help workshop\hcrtf.exe" -xn
+
+proj = winboard
+allobj = winboard.obj backend.obj parser.obj moves.obj lists.obj \
+	 gamelist.obj pgntags.obj wedittags.obj wgamelist.obj zippy.obj \
+         wsockerr.obj
+libs=wsock32.lib import32.lib
+rm = c:\mksnt\rm -f
+
+cvars = -DWINVER=0x0400
+
+.c.obj:
+	$(cc) -c $(cvars) $*.c
+
+
+
+all: $(proj).exe
+
+# Update the help file if necessary
+$(proj).hlp : $(proj).rtf
+	$(hc) $(proj).hpj
+	cat $(proj).err
+
+# Update the resource if necessary
+$(proj).res: $(proj).rc
+	$(rc) -r $(proj).rc
+
+# Update the object files if necessary
+winboard.obj: winboard.c config.h winboard.h common.h frontend.h backend.h \
+	moves.h wgamelist.h defaults.h resource.h
+
+backend.obj: backend.c config.h frontend.h backend.h common.h parser.h
+
+parser.obj: parser.C config.h common.h backend.h parser.h
+
+parser.C: parser.l
+	flex -L parser.l
+	del parser.C
+	rename lex.yy.c parser.C
+
+moves.obj: moves.c config.h backend.h common.h parser.h moves.h
+
+lists.obj: lists.c config.h lists.h common.h
+
+gamelist.obj: gamelist.c config.h lists.h common.h frontend.h backend.h \
+	parser.h
+
+pgntags.obj: pgntags.c config.h common.h frontend.h backend.h parser.h lists.h
+
+wedittags.obj: wedittags.c config.h common.h winboard.h frontend.h backend.h
+
+wgamelist.obj: wgamelist.c config.h. common.h winboard.h frontend.h backend.h \
+	wgamelist.h
+
+wsockerr.obj: wsockerr.c wsockerr.h
+
+zippy.obj: zippy.c config.h common.h zippy.h frontend.h
+
+
+$(proj).exe: $(proj).bin $(proj).res
+	$(rc) -t -v -fe$(proj).exe $(proj).res $(proj).bin
+
+$(proj).bin: $(allobj)
+	$(link) -e$< @&&!
+$(allobj)
+$(libs)
+!
+
+clean:
+	$(rm) *.obj
+
+
+
+*** bcc32.cfg Thu Jun  3 15:13:40 1999
+-Ic:\bc45\include
+-Lc:\bc45\lib
+-Ld:\lib
+-w-ccc -w-eff -w-pia -w-par -w-stv -w-inl -w-aus -w-csu
+-w-pro -w-rch
+-tWE -tWM- -U_RTLDLL
+

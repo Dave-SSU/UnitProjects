@@ -1,0 +1,73 @@
+[Event "Computer chess game"]
+[Site "SRCISDN128-209"]
+[Date "1998.06.12"]
+[Round "1"]
+[White "GNUChess"]
+[Black "WCrafty-15_11"]
+[Result "0-1"]
+[TimeControl "300"]
+
+1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nc6 5. Nc3 Qc7 6. Ndb5 Qb8 7. Bc4 a6
+8. Nd4 b5 9. Be2 b4 10. Na4 Qe5 11. Nxc6 dxc6 12. Nb6 Rb8 13. Nxc8 Rxc8 14.
+Bf3 Nf6 15. Qd3 Bd6 16. Qxa6 O-O 17. Qc4 Rfd8 18. g3 Bc5 19. O-O Ra8 20. c3
+bxc3 21. bxc3 Ba3 22. Bf4 Qc5 23. Qxc5 Bxc5 24. e5 Nd5 25. Bg5 Rdc8 26. Bd2
+Ra3 27. Rfc1 Bb6 28. Rc2 Bc7 29. Bf4 Nxf4 30. gxf4 g5 31. fxg5 Bxe5 32. Rd1
+Kg7 33. h4 h6 34. gxh6+ Kxh6 35. Rd3 c5 36. Kf1 c4 37. Re3 Rc5 38. Be4 Kh5
+39. Rh3 Kg4 40. Kg2 Rc8 41. h5 Rg8 42. Bc6 Kf5+ 43. Kf1 Rh8 44. Bb5 Kg4 45.
+Re3 Bf4 46. Re4 Rxh5 47. Bxc4 Rh3 48. Be2+ Kf5 49. Rc4 e5 50. Rc7 f6 51.
+Bb5 Rh2 52. Re7 Ke4 53. Ke1 Kd5 54. Ke2 Bg3 55. c4+ Kc5 56. Ke1 Rxf2 57.
+Rxf2 Rxa2 58. Rc7+ Kd4 59. Rf7 Rxf2 60. Rd7+ Ke3 61. Kd1 e4 62. Bc6 f5 63.
+c5 Re2 64. Bb7 f4 65. Rg7 Rg2 66. Re7 Rd2+ 67. Kc1 Rd4 68. c6 f3 69. Ba6
+Rd6 70. Bb5 f2 71. Kb2 Kf3 72. Kc2 Rxc6+ 73. Bxc6 f1=Q 74. Bxe4+ Kg4 75.
+Rg7+ Kh4 76. Rh7+ Kg5 77. Rg7+ Kf6 78. Rg6+ Ke5 79. Bd3 Qg2+ 80. Kd1 Qf3+
+81. Kd2 Kd4 82. Bf1 Qf2+ 83. Be2 Qe1+ 84. Kc2 Qxe2+ 85. Kb3 Qd3+ 86. Ka4
+Qxg6 87. Kb3 Qb1+ 88. Ka4 Bc7 89. Ka3 Bd6+ 90. Ka4 Qb4#
+{Black mates} 0-1
+
+[Event "Computer chess game"]
+[Site "SRCISDN128-209"]
+[Date "1998.06.12"]
+[Round "2"]
+[White "WCrafty-15_11"]
+[Black "GNUChess"]
+[Result "1-0"]
+[TimeControl "300"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 e5 6. Bb5+ Bd7 7. Bxd7+
+Qxd7 8. Nf5 d5 9. Nxd5 Nxe4 10. Qd3 Nf6 11. Nxf6+ gxf6 12. O-O Qxd3 13.
+cxd3 Nc6 14. Be3 Nb4 15. d4 Nd3 16. Rab1 h5 17. Rfd1 Nb4 18. dxe5 fxe5 19.
+a3 Nc6 20. f4 f6 21. Rbc1 Rd8 22. Re1 Rg8 23. Rc4 Rd3 24. fxe5 fxe5 25. Rh4
+Rb3 26. Re2 Rd3 27. Rxh5 Rd1+ 28. Kf2 Rg6 29. Rh7 Rd7 30. Rxd7 Kxd7 31. h3
+Rf6 32. Rd2+ Ke6 33. g4 Na5 34. Bg5 Rg6 35. Be3 Rf6 36. Bxa7 Nc4 37. Re2 b6
+38. Bb8 Bd6 39. Rc2 Bxb8 40. Rxc4 Bd6 41. Rc6 Kd5 42. Rxd6+ Rxd6 43. Nxd6
+Kxd6 44. a4 e4 45. b4 Kd5 46. a5 Ke5 47. a6 Kd5 48. a7 Kd4 49. a8=Q Ke5 50.
+Qe8+ Kd4 51. g5 Kd5 52. g6 e3+ 53. Kxe3 b5 54. g7 Kd6 55. g8=Q Kc7 56. Qe7+
+Kb6 57. Qge6#
+{White mates} 1-0
+
+[Event "Computer chess game"]
+[Site "SRCISDN128-209"]
+[Date "1998.06.12"]
+[Round "-"]
+[White "mann"]
+[Black "GNUChess"]
+[Result "*"]
+[TimeControl "300"]
+
+1. e4 e5
+*
+
+[Event "Computer chess game"]
+[Site "SRCISDN128-209"]
+[Date "1998.06.13"]
+[Round "1"]
+[White "TCB"]
+[Black "WCrafty-15_12"]
+[Result "*"]
+[TimeControl "300"]
+
+1. e4 c5 2. Nf3 e6 3. c3 d5 4. exd5 exd5 5. d4 Nc6 6. Bb5 Bd6 7. O-O Ne7 8.
+dxc5 Bxc5 9. Nbd2 O-O 10. Nb3 Bb6 11. Re1 Nf5 12. Bd3 Nh4 13. Nfd4 Bxd4 14.
+Nxd4 Nxd4 15. cxd4 Bf5 16. Bxf5 Nxf5 17. Re5
+*
+

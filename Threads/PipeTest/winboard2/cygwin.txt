@@ -1,0 +1,388 @@
+Date: Sun, 27 Jun 1999 11:54:24 -0400 (EDT)
+From: Mark Schoenberg
+To: mann@pa.dec.com
+
+THE PORT TO CYGWIN
+
+     Obviously, an important part of the Cygwin port is the Makefile, which I
+include in its entirety here.
+
+
+********************Start Makefile*********************************************
+#OS=WIN98
+#ENV=WIN32
+#CPU=i386
+#!include <$(OS)$(ENV).MAK>
+
+# Use up to date help compiler
+#hc="c:\program files\help workshop\hcrtf.exe" -xn
+
+# Comment out both to turn on debugging symbols #######
+cdebug=
+linkdebug= -mwindows
+#######################################################
+
+proj=winboard
+allobj=  winboard.o backend.o parser.o moves.o lists.o \
+	 gamelist.o pgntags.o wedittags.o wgamelist.o zippy.o \
+         wsockerr.o
+
+
+CFLAGS=
+#CVARS= -I. -DWINVER=0x0400
+CVARS= -I. -mwindows -mno-cygwin
+CC = gcc $(CVARS)
+WCC = $(CC) -Xlinker "-e" -Xlinker "_mainCRTStartup"
+LD = ld
+INSTALL = install
+
+all: $(proj).res $(proj).exe
+
+# Update the help file if necessary
+#	$(proj).hlp : $(proj).rtf
+#	$(hc) $(proj).hpj
+#	cat $(proj).err
+
+# Update the resource if necessary
+#	$(proj).rbj: $(proj).rc $(proj).h $(proj).res resource.h
+#	(rc) $(rcvars) -r -fo $(proj).res $(cvars) $(proj).rc
+#	cvtres -$(CPU) $(proj).res -o $(proj).rbj
+
+# Update the resource if necessary
+$(proj).res: $(proj).rc $(proj).h resource.h
+	windres $< -O coff -o $@
+
+# Update the object files if necessary
+
+winboard: winboard.c config.h winboard.h common.h frontend.h backend.h \
+	moves.h wgamelist.h defaults.h resource.h rich.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) winboard.c
+
+backend: backend.o config.h frontend.h backend.h common.h parser.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) backend.c
+
+parser: parser.c config.h common.h backend.h parser.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) parser.c
+
+#parser.C: parser.l
+parser.c: parser.l
+	flex -L parser.l
+#	rm parser.C
+	cp lex.yy.c parser.c
+
+moves: moves.c config.h backend.h common.h parser.h moves.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) moves.c
+
+lists: lists.c config.h lists.h common.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) lists.c
+
+gamelist: gamelist.c config.h lists.h common.h frontend.h backend.h \
+	parser.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) gamelist.c
+
+pgntags: pgntags.c config.h common.h frontend.h backend.h parser.h lists.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) pgntags.c
+
+wedittags: wedittags.c config.h common.h winboard.h frontend.h backend.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) wedittags.c
+
+wgamelist: wgamelist.c config.h. common.h winboard.h frontend.h backend.h \
+	wgamelist.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) wgamelist.c
+
+wsockerr: wsockerr.c wsockerr.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) wsockerr.c
+
+zippy: zippy.c config.h common.h zippy.h frontend.h
+	$(CC) $(CFLAGS) $(CVARS) $(cdebug) zippy.c
+
+#$(proj): (proj).c config.h winboard.h common.h frontend.h backend.h \
+#	moves.h wgamelist.h defaults.h resource.h
+#	$(CC) $(CFLAGS) $(CVARS) $(cdebug) $(proj).c
+
+$(proj).exe: $(allobj) $(proj).hlp $(proj).rc
+	$(WCC) $(guiflags) $(allobj) \
+	-lwsock32 -lcomctl32 -lwinmm  -loldnames -lkernel32 \
+	-ladvapi32 -luser32 -lgdi32 -lcomdlg32 -lwinspool \
+	$(proj).res -o $(proj).exe
+#	wsock32.lib comctl32.lib winmm.lib libc.lib oldnames.lib kernel32.lib \
+#	advapi32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib \
+#	$(proj).rbj -out:$(proj).exe
+#	bscmake *.sbr
+
+install:
+	$(INSTALL) winboard.exe c:/progra~1/WinBoard
+
+clean:
+	rm *.o *.res parser.c
+*********************************End Makefile**********************************
+
+     I am not a makefile expert.  I may have changed the original Makefile more
+than necessary to get things to work under Cygwin.
+
+Comments on Makefile:
+
+     My computer, an inexpensive HP Pavilion running Windows98 does not have
+the help compiler.
+
+     I don't know how much you know about Cygwin.  I have been using it only a
+short while, but will do my best to explain it to you as I understand it.  I
+chose CVARS so that compilation is with the -mwindows -mno-cygwin flags.  Under
+Cygwin, the first flag tells the compiler that you are running a graphics
+application and keeps a DOS window from popping up at startup.  The second
+option tells the C compiler, gcc, to link the C subroutines using the Win32 API
+rather than the special Cygwin API which is in a DLL called cygwin1.dll.  By
+using the -mno-cygwin flag, we lose access to some of the more specialized Unix
+subroutines (which WinBoard doesn't seem to use), but we have a program which
+will execute on a Win32 machine not having the Cygwin stuff.
+
+
+     The xlinker stuff in the definition of WCC is not important because the
+compiler guesses the correct entry point for the program.  Including it in the
+Makefile avoids a warning message during compilation.
+
+     Cygwin creates the resource using windres which I am told is separately
+available from FSF.  Your winboard.rc file worked well as input for windres and
+only a few changes to it were necesssary.  For some unknown reason, I could not
+get windres to accept the definition of the icon for the "About WinBoard" popup
+under the help button so I just left it out.  It was necessary for me to remove
+the quotation marks around "WBConsole" in CLASS "WBConsole" to make it CLASS
+WBConsole and I had to eliminate some of the parameters on a font definition
+line.  The diff file appears below.  I also changed the name of one of the
+bitmap definitions so that the white knight was the default icon.
+
+*******************************Start winboard.rc.diff**************************
+4c4
+< #include <windows.h>
+---
+> 
+39c39
+< //    ICON             "icon_white",IDC_STATIC, 4, 6, 20, 20
+---
+>     ICON            "icon_white",-1,3,6,20,20
+237,238c237
+< //CLASS "WBConsole"
+< CLASS WBConsole
+---
+> CLASS "WBConsole"
+271,272c270
+< //FONT 8, "MS Sans Serif",  0, 0, 0x1
+< FONT 8, "MS Sans Serif"
+---
+> FONT 8, "MS Sans Serif", 0, 0, 0x1
+466c464
+< ICON_AWHITE              ICON    DISCARDABLE     "bitmaps\\icon_whi.ico"
+---
+> ICON_WHITE              ICON    DISCARDABLE     "bitmaps\\icon_whi.ico"
+
+********************************End winboard.rc.diff****************************
+
+     One last note about the resource file.  A resource file would not normally
+be in coff format, but Cygwin easily links coff files and the "-O coff" kludge
+seems to work.
+
+     The weirdest thing I did to get the port to Cygwin was in generating
+parser.  The original Makefile used C++ to compile parser from parser.C created
+by "flex -L".  I got a slew of error messages from the Cygwin C++ compiler.
+Since I know so little about C++, rather than correct the source of the
+compilation errors, I copied lex.yy.c, the output from "flex -L", to parser.c
+and compiled that with the Cygwin version of gcc, a C compiler.  No compilation
+errors -- WinBoard seemed to work -- I was happy -- ignorance is bliss.  I hope
+I haven't missed something important.
+
+     This is the essence of the port, All that now remains is to tell you about
+the miminal changes to the source code necessary under Cygwin.
+
+     Changes to winboard.h: 
+
+     I made only one change to winboard.h which was in the definition of
+ChangeBoardSize.  Cygwin seemed to like newSize to be of type "BoardSize"
+rather than type "int".
+
+     Changes to winboard.c:
+
+     1) The original program had a "#include richedit.h".  Cygwin claims that
+richedit.h is proprietary and they do not use it.  The have however,
+independently included most definitions of the richedit.h stuff elsewhere.  The
+only stuff they left out is SCF_ALL and SCF_DEFAULT.  I found definitions of
+those two in a richedit.h file that someone had stuck on the web and I put these
+in a local rich.h file that I #include.
+
+     2) In the original version I had, I think that winmajor was undefined.  I
+defined it as an unsigned int.
+
+     3) I believe the original program decremented "bs" using "bs--" and
+stopped when bs was <= 0.  The comparison of bs with "0" did not work under
+Cygwin, possibly because "bs" was of type "BoardSize".  For Cygwin, I created
+the integer "ibs", decremented that using "ibs--", and then assigned bs =
+(BoardSize) ibs.
+
+     4) For some reason Cygwin complained about errno.  Presumably one wants to
+load errno.h, which I imagine defines errno as well as other important stuff.
+I ran into some difficulty trying to include errno.h, so I took the shortcut of
+simply adding the one line, "int errno;" into the program.  I haven't noticed
+any problems, but perhaps this hasn't been fully tested.
+
+     5) CFM_CHARSET is not defined under Cygwin so I eliminated it as a
+possibility for cfmt.dwMask.
+
+     6) I found it necessary to define edt2 as an int, but I have no idea what
+it is.  It doesn't seem to do or refer to anything.
+
+     7) Presumably because of the way icsTextMenuString is defined, under
+Cygwin-B20.1, you apparently can read it but not modify it.  Attempts to modify
+it, crash the program.  I therefore copied icsTextMenuStrung to a buffer which
+could be mofified, pointed "p" there, and continued with the original code.
+This required just three additional lines of code.
+
+  char msbuffer[2000];
+  strcpy(msbuffer, p);
+  p = msbuffer;
+
+     These are the only code changes I made; barely anything at all.  The diff
+file for the code changes is:
+
+****************************Start winboard.c.diff*******************************
+66,73c66,67
+< /*MS Start*/
+< /*#include <richedit.h>*/
+< /* richedit.h is not part of cygwin, but nearly everything is defined
+<    in other include files.  Therefore only SCF_ALL and SCF_DEFAULT must
+<    be defined.  I did this using a local rich.h file.
+< */
+< #include "rich.h"
+< /*MS End*/
+---
+> #include <richedit.h>
+> 
+82a77
+> 
+87d81
+< 
+165,167c159
+< /*MS Start*/
+< unsigned int _winmajor;
+< /*MS End*/
+---
+> 
+393a386
+> 
+395a389
+> 
+465a460
+> 
+482,484d476
+<   /*MS Start*/
+<   int ibs; /*ibs is an integer representation of bs */ 
+<   /*MS End*/
+491a484
+> 
+506c499
+<   
+---
+> 
+511c504
+<   
+---
+> 
+522d514
+< 
+524d515
+< 
+527,530c518
+<   /*MS Start*/
+<   /* Next line did not stop at 0 under cygwin-b20 */
+<   /*  for (bs = NUM_SIZES - 1; bs >= (BoardSize)0; bs--) {*/
+<   for (ibs = NUM_SIZES - 1; ibs >= 0; ibs--) {
+---
+>   for (bs = NUM_SIZES - 1; bs >= (BoardSize)0; bs--) {
+533,534d520
+<     bs = (BoardSize) ibs;
+<     /*MS End*/
+1338a1325
+> 
+1463a1451
+> 
+1472c1460
+< 
+---
+>   
+1479a1468
+> 
+1484a1474
+> 
+1503a1494
+> 
+1524a1516
+> 
+1526c1518
+< } /* End InitAppData */
+---
+> }
+1614,1618c1606
+<  /*MS Start*/
+<   int errno;
+<   /* I suspect it makes more sense to load <errno.h> but I couldn't immediately
+<      get that to work  */
+<   /*MS End*/
+---
+> 
+1919a1908
+> 
+1930a1920
+> 
+1933c1923
+< 		 (UINT)GetSubMenu(hmenu, i), menuBarText[tinyLayout][i]);
+---
+> 	(UINT)GetSubMenu(hmenu, i), menuBarText[tinyLayout][i]);
+1935a1926
+> 
+1936a1928
+> 
+1950a1943
+> 
+1955a1949
+> 
+2089a2084
+> 
+3097,3101c3092
+<   /*MS Start*/
+<   /* CFM_CHARSET is not defined under cygwin-b20 */
+<   /*  cfmt.dwMask = CFM_FACE|CFM_SIZE|CFM_CHARSET;*/
+<   cfmt.dwMask = CFM_FACE|CFM_SIZE;
+<   /*MS End*/
+---
+>   cfmt.dwMask = CFM_FACE|CFM_SIZE|CFM_CHARSET;
+4142d4132
+<   fprintf(stdout,"End of WndProc. autoCallFlag is %d\n",appData.autoCallFlag);
+4144c4134
+< }/* End WndProc */
+---
+> }
+5249,5252c5239
+<   /*MS Start*/
+<   /*What in the world is edt2?  It is nowhere defined */
+<   int edt2;
+<   /*MS End*/
+---
+> 
+6603,6612d6589
+<   /*MS Start*/
+<   /* Under cygwin b-20, wherever the system stores icsTextMenuString,
+<      you apparently can read it but not modify it.  Commands like "q* = '\0'"
+<      bomb the system.  So..., copy icsTextMenuSting to a buffer you can
+<      change, and point "p" there.
+<   */
+<   char msbuffer[2000];
+<   strcpy(msbuffer, p);
+<   p = msbuffer;
+<   /*MS End*/
+6665c6642
+< } /*End ParseIcsTextMenu*/
+---
+> }
+6690c6667
+< } /*End LoadIcsTextMenu */
+---
+> }
+***********************End winboard.c.diff*************************************

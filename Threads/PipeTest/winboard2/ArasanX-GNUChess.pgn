@@ -1,0 +1,102 @@
+[Event "ICS unrated blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 exd4
+{mann lost connection; game aborted} *
+
+[Event "ICS unrated blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "manntest"]
+[Black "mann"]
+[Result "*"]
+[WhiteElo "0"]
+[BlackElo "1718"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6
+{mann lost connection; game aborted} *
+
+[Event "ICS unrated blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. Nc3 O-O 6. Kf1 Re8 7. h3 h5
+{mann lost connection; game adjourned} *
+
+[Event "ICS Unrated Blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. Nc3 O-O 6. Kf1 Re8 7. h3 h5 8.
+Bd2 d6 9. Ng5 Qd7 10. f3 Qxh3 11. Rxh3
+*
+
+[Event "ICS Unrated Blitz match"]
+[Site "localhost"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. Nc3 O-O 6. Kf1 Re8 7. h3 h5 8.
+Bd2 d6 9. Ng5 Qd7 10. f3 Qxh3 11. Rxh3
+{manntest lost connection; game adjourned} *
+
+[Event "ICS Unrated Blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. Nc3 O-O 6. Kf1 Re8 7. h3 h5 8.
+Bd2 d6 9. Ng5 Qd7 10. f3 Qxh3 11. Rxh3
+{Game aborted by mutual agreement} *
+
+[Event "ICS Unrated Blitz match"]
+[Site "chess-fic.pa-x.dec.com"]
+[Date "1998.06.10"]
+[Round "-"]
+[White "mann"]
+[Black "manntest"]
+[Result "*"]
+[WhiteElo "1718"]
+[BlackElo "0"]
+[TimeControl "300"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. Nc3 O-O 6. Kf1 Re8 7. h3 h5 8.
+Bd2 d6 9. Ng5 Qd7 10. f3 Qxh3 11. Rxh3
+{Game aborted by mutual agreement} *
+
