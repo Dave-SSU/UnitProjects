@@ -30,6 +30,7 @@ public:
     bool                setBufferChunk(const cPos& pos, const char* pChars, int count);
     bool                setBufferChar(const cPos& pos, const char& cChar, eCharAttribute attrib=BLACK_ON_GRAY);
     void                display();
+    void                fillScreen(const char fillChar, const WORD attribute);
 
 private:
     cOutput(HWND hWnd);                         // private constructor!

@@ -144,3 +144,20 @@ void    cOutput::display()
     dirtyRect.Right = 0;
     dirtyRect.Bottom = 0;
 }
+
+// ----------------------------------------------------------------------------
+void	cOutput::fillScreen(const char fillChar, const WORD attribute)
+{
+    CONSOLE_SCREEN_BUFFER_INFO info;
+    GetConsoleScreenBufferInfo(hWnd, &info);
+
+    DWORD dwBufferLen = info.dwSize.X * info.dwSize.Y;
+    const COORD coordWriteStart = { 0, 0 };
+    DWORD dwWritten;
+    FillConsoleOutputCharacter(hWnd, fillChar, dwBufferLen, coordWriteStart, &dwWritten);
+
+    // Need to call again?
+    GetConsoleScreenBufferInfo(hWnd, &info);
+    FillConsoleOutputAttribute(hWnd, info.wAttributes, dwBufferLen, coordWriteStart, &dwWritten);
+    SetConsoleCursorPosition(hWnd, coordWriteStart);
+}

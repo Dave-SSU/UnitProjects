@@ -12,8 +12,11 @@ const int MAP_INSET_Y = 10;
 cMap::cMap(const cPos& posOrigin, int width, int height)
 	: origin(posOrigin.x, posOrigin.y), nWidth(width-MAP_INSET_X), nHeight(height- MAP_INSET_Y), bDirty(true)
 {
-    wall.init('W'); // settings.getChar(cGameSettings::GC_Wall));
+    //wall.init('W'); // settings.getChar(cGameSettings::GC_Wall));
+    wall.init((char) 178); // settings.getChar(cGameSettings::GC_Wall));
     floor.init('-'); // settings.getChar(cGameSettings::GC_Floor));
+	start.init('S'); // settings.getChar(cGameSettings::GC_Floor));
+	exit.init('E'); // settings.getChar(cGameSettings::GC_Floor));
 
     // maze generator algorithm requires an odd number of row and columns
     if (0 == nWidth % 2)    // or can check the lowest bit: odd if (nWidth & 0x01) 
@@ -31,7 +34,6 @@ cMap::cMap(const cPos& posOrigin, int width, int height)
 cMap::~cMap()
 {
     contents.erase(contents.begin(), contents.end());
-
 }
 
 // ----------------------------------------------------------------------------
@@ -52,41 +54,50 @@ const cGameObj&   cMap::operator[](cPos& pos) const
 void        cMap::generate()
 {
     pMaze = new cMaze;
-#if 1
     if (nullptr != pMaze)
     {
-        pMaze->printOff();
-        pMaze->create(rand(), nWidth, nHeight);
-
+        pMaze->printOn();
+     
+//        pMaze->create(rand(), nWidth, nHeight);
+        while (1)
+        {
+            pMaze->create(rand(), (rand() % 15 + 10) | 0x1, (rand() % 15 + 10) | 0x1);
+            cOutput& out = cOutput::getObj();
+            out.fillScreen(' ', 0);
+        }
         // copy the string data from the generated maze into internal format and buffer
-        std::vector<std::string>&   strs = pMaze->getStrings();
+        const std::vector<std::string>&   strs = pMaze->getStrings();
 
-      //  pMaze->getWidth();
         auto mapContentsItr = contents.begin();
         
-        //itr != contents.end(); ++itr)
-         //   *(itr) = &floor;
-        
-        for (auto strVectorItr = strs.begin(); strVectorItr != strs.end(); strVectorItr++)
-        {
-            int i = 0;
-            for (auto strItr = strVectorItr->begin(); strItr != strVectorItr->end(); strItr++)
-            {
-                if (*strItr == pMaze->getWallChar())
-                {
-                    *(mapContentsItr)++ = &wall;
-                }
-                else if (*strItr == pMaze->getFloorChar())
+		for (auto strVectorItr : strs)
+		{
+			int count = 0;
+			for (auto strItr : strVectorItr)
+			{
+				if (strItr == pMaze->getWallChar())
+				{
+					*(mapContentsItr)++ = &wall;
+				}
+				else if (strItr == pMaze->getStartChar())
+				{
+					*(mapContentsItr)++ = &start;
+				}
+				else if (strItr == pMaze->getExitChar())
+				{
+					*(mapContentsItr)++ = &exit;
+				}
+                else // treat as a floor tile otherwise: if (strItr == pMaze->getFloorChar())
                 {
                     *(mapContentsItr)++ = &floor;
                 }
-                i++;
-            }
-            i = 0;
-        }
+                count++;
+			}
+			count = 0;
+		}
         return;
     }
-    #endif
+
     // otherwise default to the simple map
 
     // initialize everything to floor first

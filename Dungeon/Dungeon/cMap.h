@@ -32,6 +32,8 @@ private:
     //typedef std::vector<cGameObj*>::iterator _MAPITR;
     cGameObj    wall;
     cGameObj    floor;                     // non-interactive
+	cGameObj    start;                     // non-interactive
+	cGameObj    exit;                     // non-interactive
 
     cMaze *     pMaze = nullptr;
 };

@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <stack>
+#include <random>
+#include <time.h>
 #include "cMaze.h"
 
 #ifdef _DEBUG
@@ -28,9 +30,10 @@
 
 #endif
 
+const unsigned int SIGNED_MASK = 0x7FFFFFF;
+
 //-----------------------------------------------------------------------------
 cMaze::cMaze()
-    : m_start(0,0), m_end(0,0), m_dimensions(0,0), m_seed(0), p_chars(nullptr), p_Cells(nullptr)
 {
 }
 
@@ -59,6 +62,7 @@ void    cMaze::reset()
     for (auto stringItr = m_strings.begin(); stringItr != m_strings.end(); stringItr++)
         stringItr->erase();
     m_strings.erase(m_strings.begin(), m_strings.end());
+	m_endpoints.erase(m_endpoints.begin(), m_endpoints.end());
 
     m_start.m_x = m_start.m_y = m_end.m_x = m_end.m_y = m_dimensions.m_x = m_dimensions.m_y = 0;
 }
@@ -74,7 +78,11 @@ bool    cMaze::create(int seed, int width, int height)
     if (nullptr != p_chars)
         reset();
 
+	// store and apply the random seed passed in
     m_seed = seed;
+	m_seed = (unsigned int)time(0);
+	m_mtRand.seed(m_seed);
+
     m_dimensions.m_x = width;
     m_dimensions.m_y = height;
 
@@ -82,7 +90,8 @@ bool    cMaze::create(int seed, int width, int height)
     initialize();
     generateMaze();
 
-    print();
+    if (m_printGeneration)
+	    print();
 
     // now create a 2D character array; don't always need/want the Cells after generating the maze
     p_chars = new char*[height];
@@ -98,7 +107,6 @@ bool    cMaze::create(int seed, int width, int height)
         std::string s(p_chars[r], m_dimensions.m_x);
         m_strings.push_back(s);
     }
-
 
 #ifdef _DEBUG
     // put a pause in so maze can be inspected visually
@@ -144,120 +152,122 @@ void    cMaze::initialize()
             p_Cells[r][m_dimensions.m_x - 2].right_wall = false;
         }
     }
-    // apply the random seed passed in
-    srand(m_seed);
 }
 
 //-----------------------------------------------------------------------------
 void    cMaze::generateMaze()
 {
-    // Generate a random odd number between 1 and width - 2
-    int randomX = (2*rand()+1) % (m_dimensions.m_x - 1);
-    // Generate a random odd number between 1 and height - 2
-    int randomY = (2 * rand() + 1) % (m_dimensions.m_y - 1);
+    // Generate a random odd position between 1 and width - 2, and 1 and height - 1.
+    // Use SIGNED_MASK to force the random number to be positive when converted from unsigned int to signed int.
+    cVector2 randPos(SIGNED_MASK & (2 * m_mtRand() + 1) % (m_dimensions.m_x - 1), SIGNED_MASK & (2 * m_mtRand() + 1) % (m_dimensions.m_y - 1));
+    
+	// Save this position as the player starting point
+    m_start = randPos;
+	m_endpoints.push_back(randPos);
 
-    // Save this position as the player starting point
-    m_start.m_x = randomX;
-    m_start.m_y = randomY;
-
+	// counter for all the cells visited while generating the maze. done when all have been visited.
     int visitedCells = 1;
     int totalCells = ((m_dimensions.m_x - 1) / 2)*((m_dimensions.m_y - 1) / 2);
     
     // Stack is used to trace the reverse path
-    std::stack<int> back_trackX, back_trackY; 						
+    std::stack<int> back_trackX, back_trackY; 		
+    std::stack<cVector2> back_track;
 
-    // Set S as the start cell
-    p_Cells[randomY][randomX].display = 'S';
+    // Set the start cell
+	p_Cells[randPos.m_y][randPos.m_x].display = getStartChar();
     // Set start cell as visited;
-    p_Cells[randomY][randomX].visited = true;
+    p_Cells[randPos.m_y][randPos.m_x].visited = true;
+
+    bool just_moved = false;
+    char endpointChar = 'a';
 
     // Now - randomly wander through the cells adjacent to the current cell, until all cells are visited. 
     //  This guarantees there is a path from the starting cell to a finishing cell.
     while (visitedCells < totalCells)
     {
         // test to make sure the adjacent cells are valid
-        if ((randomY >=2 && (p_Cells[randomY - 2][randomX].visited == false) && (p_Cells[randomY][randomX].top_wall == true && p_Cells[randomY - 2][randomX].bot_wall == true)) ||
-            (randomY <= m_dimensions.m_y-3 && (p_Cells[randomY + 2][randomX].visited == false) && (p_Cells[randomY][randomX].bot_wall == true && p_Cells[randomY + 2][randomX].top_wall == true)) ||
-            (randomX >= 2 && (p_Cells[randomY][randomX - 2].visited == false) && (p_Cells[randomY][randomX].left_wall == true && p_Cells[randomY][randomX - 2].right_wall == true)) ||
-            (randomX <= m_dimensions.m_x - 3 && (p_Cells[randomY][randomX + 2].visited == false) && (p_Cells[randomY][randomX].right_wall == true && p_Cells[randomY][randomX + 2].left_wall == true)))
+        if ((randPos.m_y >=2 && (p_Cells[randPos.m_y - 2][randPos.m_x].visited == false) && (p_Cells[randPos.m_y][randPos.m_x].top_wall == true && p_Cells[randPos.m_y - 2][randPos.m_x].bot_wall == true)) ||
+            (randPos.m_y <= m_dimensions.m_y-3 && (p_Cells[randPos.m_y + 2][randPos.m_x].visited == false) && (p_Cells[randPos.m_y][randPos.m_x].bot_wall == true && p_Cells[randPos.m_y + 2][randPos.m_x].top_wall == true)) ||
+            (randPos.m_x >= 2 && (p_Cells[randPos.m_y][randPos.m_x - 2].visited == false) && (p_Cells[randPos.m_y][randPos.m_x].left_wall == true && p_Cells[randPos.m_y][randPos.m_x - 2].right_wall == true)) ||
+            (randPos.m_x <= m_dimensions.m_x - 3 && (p_Cells[randPos.m_y][randPos.m_x + 2].visited == false) && (p_Cells[randPos.m_y][randPos.m_x].right_wall == true && p_Cells[randPos.m_y][randPos.m_x + 2].left_wall == true)))
         {
-            int random = (rand() % 4);		// Pick a random wall 0-3 to knock down
+            int random = (m_mtRand() % 4);		// Pick a random wall 0-3 to knock down
 
             // GO UP
-            if ((random == 0) && (randomY > 1)) {
-                if (p_Cells[randomY - 2][randomX].visited == false) {	// If not visited
-                    p_Cells[randomY - 1][randomX].display = m_floorChar;	// Delete display
-                    p_Cells[randomY - 1][randomX].visited = true;	// Mark cell as visited
-                    p_Cells[randomY][randomX].top_wall = false;	// Knock down wall
+            if ((random == 0) && (randPos.m_y > 1)) {
+                if (p_Cells[randPos.m_y - 2][randPos.m_x].visited == false) {	// If not already visited
+                    p_Cells[randPos.m_y - 1][randPos.m_x].display = m_floorChar; // Delete display
+                    p_Cells[randPos.m_y - 1][randPos.m_x].visited = true;		// Mark cell as visited
+                    p_Cells[randPos.m_y][randPos.m_x].top_wall = false;			// Knock down wall
 
-                    back_trackX.push(randomX); 			// Push X for back track
-                    back_trackY.push(randomY);			// Push Y for back track
+                    back_track.push(randPos);									// Push position for back tracking
+                    just_moved = true;
 
-                    randomY -= 2;					// Move to next cell
-                    p_Cells[randomY][randomX].visited = true;		// Mark cell moved to as visited
-                    p_Cells[randomY][randomX].display = m_floorChar;		// Update path
-                    p_Cells[randomY][randomX].bot_wall = false;	// Knock down wall
-                    visitedCells++;					// Increase visitedCells counter
+                    randPos.m_y -= 2;											// Move to next cell
+                    p_Cells[randPos.m_y][randPos.m_x].visited = true;			// Mark cell moved to as visited
+                    p_Cells[randPos.m_y][randPos.m_x].display = m_floorChar;	// Update path
+                    p_Cells[randPos.m_y][randPos.m_x].bot_wall = false;			// Knock down wall
+                    visitedCells++;												// Increase visitedCells counter
                 }
                 else
                     continue;
             }
 
             // GO DOWN
-            else if ((random == 1) && (randomY < m_dimensions.m_y - 2)) {
-                if (p_Cells[randomY + 2][randomX].visited == false) {	// If not visited
-                    p_Cells[randomY + 1][randomX].display = m_floorChar;	// Delete display
-                    p_Cells[randomY + 1][randomX].visited = true;	// Mark cell as visited
-                    p_Cells[randomY][randomX].bot_wall = false;	// Knock down wall
+            else if ((random == 1) && (randPos.m_y < m_dimensions.m_y - 2)) {
+                if (p_Cells[randPos.m_y + 2][randPos.m_x].visited == false) {	// If not visited
+                    p_Cells[randPos.m_y + 1][randPos.m_x].display = m_floorChar;// Delete display
+                    p_Cells[randPos.m_y + 1][randPos.m_x].visited = true;		// Mark cell as visited
+                    p_Cells[randPos.m_y][randPos.m_x].bot_wall = false;			// Knock down wall
 
-                    back_trackX.push(randomX); 			// Push X for back track
-                    back_trackY.push(randomY);			// Push Y for back track
+                    back_track.push(randPos);									// Push position for back tracking
+                    just_moved = true;
 
-                    randomY += 2;					// Move to next cell
-                    p_Cells[randomY][randomX].visited = true;		// Mark cell moved to as visited
-                    p_Cells[randomY][randomX].display = m_floorChar;		// Update path
-                    p_Cells[randomY][randomX].top_wall = false;	// Knock down wall
-                    visitedCells++;					// Increase visitedCells counter
+                    randPos.m_y += 2;											// Move to next cell
+                    p_Cells[randPos.m_y][randPos.m_x].visited = true;			// Mark cell moved to as visited
+                    p_Cells[randPos.m_y][randPos.m_x].display = m_floorChar;	// Update path
+                    p_Cells[randPos.m_y][randPos.m_x].top_wall = false;			// Knock down wall
+                    visitedCells++;												// Increase visitedCells counter
                 }
                 else
                     continue;
             }
 
             // GO LEFT
-            else if ((random == 2) && (randomX > 1)) {
-                if (p_Cells[randomY][randomX - 2].visited == false) {	// If not visited
-                    p_Cells[randomY][randomX - 1].display = m_floorChar;	// Delete display
-                    p_Cells[randomY][randomX - 1].visited = true;	// Mark cell as visited
-                    p_Cells[randomY][randomX].left_wall = false;	// Knock down wall
+            else if ((random == 2) && (randPos.m_x > 1)) {
+                if (p_Cells[randPos.m_y][randPos.m_x - 2].visited == false) {	// If not visited
+                    p_Cells[randPos.m_y][randPos.m_x - 1].display = m_floorChar;// Delete display
+                    p_Cells[randPos.m_y][randPos.m_x - 1].visited = true;		// Mark cell as visited
+                    p_Cells[randPos.m_y][randPos.m_x].left_wall = false;		// Knock down wall
 
-                    back_trackX.push(randomX); 			// Push X for back track
-                    back_trackY.push(randomY);			// Push Y for back track
+                    back_track.push(randPos);									// Push position for back tracking
+                    just_moved = true;
 
-                    randomX -= 2;					// Move to next cell
-                    p_Cells[randomY][randomX].visited = true;		// Mark cell moved to as visited
-                    p_Cells[randomY][randomX].display = m_floorChar;		// Update path
-                    p_Cells[randomY][randomX].right_wall = false;	// Knock down wall
-                    visitedCells++;					// Increase visitedCells counter
+                    randPos.m_x -= 2;											// Move to next cell
+                    p_Cells[randPos.m_y][randPos.m_x].visited = true;			// Mark cell moved to as visited
+                    p_Cells[randPos.m_y][randPos.m_x].display = m_floorChar;	// Update path
+                    p_Cells[randPos.m_y][randPos.m_x].right_wall = false;		// Knock down wall
+                    visitedCells++;												// Increase visitedCells counter
                 }
                 else
                     continue;
             }
 
             // GO RIGHT
-            else if ((random == 3) && (randomX < m_dimensions.m_x - 2)) {
-                if (p_Cells[randomY][randomX + 2].visited == false) {	// If not visited
-                    p_Cells[randomY][randomX + 1].display = m_floorChar;	// Delete display
-                    p_Cells[randomY][randomX + 1].visited = true;	// Mark cell as visited
-                    p_Cells[randomY][randomX].right_wall = false;	// Knock down wall
+            else if ((random == 3) && (randPos.m_x < m_dimensions.m_x - 2)) {
+                if (p_Cells[randPos.m_y][randPos.m_x + 2].visited == false) {	// If not visited
+                    p_Cells[randPos.m_y][randPos.m_x + 1].display = m_floorChar;// Delete display
+                    p_Cells[randPos.m_y][randPos.m_x + 1].visited = true;		// Mark cell as visited
+                    p_Cells[randPos.m_y][randPos.m_x].right_wall = false;		// Knock down wall
 
-                    back_trackX.push(randomX); 			// Push X for back track
-                    back_trackY.push(randomY);			// Push Y for back track
+                    back_track.push(randPos);									// Push position for back tracking
+                    just_moved = true;
 
-                    randomX += 2;					// Move to next cell
-                    p_Cells[randomY][randomX].visited = true;		// Mark cell moved to as visited
-                    p_Cells[randomY][randomX].display = m_floorChar;		// Update path
-                    p_Cells[randomY][randomX].left_wall = false;	// Knock down wall
-                    visitedCells++;					// Increase visitedCells counter
+                    randPos.m_x += 2;											// Move to next cell
+                    p_Cells[randPos.m_y][randPos.m_x].visited = true;			// Mark cell moved to as visited
+                    p_Cells[randPos.m_y][randPos.m_x].display = m_floorChar;	// Update path
+                    p_Cells[randPos.m_y][randPos.m_x].left_wall = false;		// Knock down wall
+                    visitedCells++;												// Increase visitedCells counter
                 }
                 else
                     continue;
@@ -265,26 +275,35 @@ void    cMaze::generateMaze()
         }
         else 
         {
-            randomX = back_trackX.top();
-            back_trackX.pop();
-
-            randomY = back_trackY.top();
-            back_trackY.pop();
+            if (just_moved)
+            {
+                p_Cells[randPos.m_y][randPos.m_x].display = endpointChar++;
+				m_endpoints.push_back(randPos);
+                just_moved = false;
+            }
+            randPos = back_track.top();
+            back_track.pop();
         }
         if (m_printGeneration)
             print();
     }
 
-    m_end.m_x = randomX;
-    m_end.m_y = randomY;
-    p_Cells[m_end.m_y][m_end.m_x].display = 'E';
-    print();
+    m_end = randPos;
+	m_endpoints.push_back(randPos);
+    p_Cells[m_end.m_y][m_end.m_x].display = getExitChar();
+    if (m_printGeneration)
+        print();
 }
 
 //-----------------------------------------------------------------------------
-std::vector<std::string>     cMaze::getStrings()
+const std::vector<std::string>&	cMaze::getStrings()
 {
-    return m_strings;
+    return const_cast<const std::vector<std::string>&>(m_strings);
+}
+
+const std::vector<cVector2>&	cMaze::getEndpoints()
+{
+	return const_cast<const std::vector<cVector2>&>(m_endpoints); 
 }
 
 #if _CONSOLE_OUTPUT
@@ -308,7 +327,7 @@ void        cMaze::print()
 #endif
 
 //-----------------------------------------------------------------------------
-bool    cMaze::getStart(int & col, int & row)
+bool    cMaze::getStart(int& col, int& row)
 {
     if (nullptr == p_chars)
         return false;
@@ -318,7 +337,7 @@ bool    cMaze::getStart(int & col, int & row)
 }
 
 //-----------------------------------------------------------------------------
-bool    cMaze::getEnd(int & col, int & row)
+bool    cMaze::getExit(int& col, int& row)
 {
     if (nullptr == p_chars)
         return false;
@@ -334,8 +353,8 @@ bool    cMaze::getRandomEmptyPosition(int & col, int & row, int nAttempts)
         nAttempts = m_dimensions.m_x * m_dimensions.m_y;
     do
     {
-        int x = rand() % (m_dimensions.m_x - 2) + 1;
-        int y = rand() % (m_dimensions.m_y - 2) + 1;
+        int x = m_mtRand() % (m_dimensions.m_x - 2) + 1;
+        int y = m_mtRand() % (m_dimensions.m_y - 2) + 1;
 
         // is position is empty
         if (m_floorChar == p_chars[y][x])
@@ -364,41 +383,4 @@ char    cMaze::setPositionValue(int col, int row, char value)
         return m_errorChar;
     p_chars[col][row] = value;
     return old;
-}
-
-
-// internal only
-
-//-----------------------------------------------------------------------------
-cMaze::Vector2::Vector2()
-    : m_x(0), m_y(0)
-{
-}
-
-//-----------------------------------------------------------------------------
-cMaze::Vector2::Vector2(int x, int y)
-    : m_x(x), m_y(y)
-{
-}
-
-//-----------------------------------------------------------------------------
-cMaze::Vector2::Vector2(Vector2 & v)
-    : m_x(v.m_x), m_y(v.m_y)
-{
-}
-
-//-----------------------------------------------------------------------------
-cMaze::Vector2 &   cMaze::Vector2::operator=(Vector2 & v)
-{
-    m_x = v.m_x;
-    m_y = v.m_y;
-    return *this;
-}
-
-//-----------------------------------------------------------------------------
-bool   cMaze::Vector2::operator==(const Vector2 & v) const
-{
-    if (this->m_x == v.m_x && this->m_y == v.m_y)
-        return true;
-    return false;
 }

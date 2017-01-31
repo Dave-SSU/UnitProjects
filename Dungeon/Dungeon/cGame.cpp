@@ -8,7 +8,7 @@
 #include "cMap.h"
 #include "cStatus.h"
 #include "cPlayer.h"
-#include "cSpade.h"
+#include "cTorch.h"
 
 const cPos posMapOrigin = { 4, 3 };		// top-right based offset for where the map is positioned
 const cPos posStatus = { 4, 3 };		// note that for Status, pos.y is the lines up from bottom
@@ -57,7 +57,7 @@ cGame&  cGame::init(cGameSettings& settings)
     // same number of spades and mummies, random
     for (int r = (rand() % 5) + 2; r >= 0; r--)
     {
-        cGameObj* pObj = new cSpade;
+        cGameObj* pObj = new cTorch;
 
         vDynamics.push_back(pObj);
         cPos& pos = pObj->getPos();

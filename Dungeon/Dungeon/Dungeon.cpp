@@ -17,9 +17,7 @@
 // ----------------------------------------------------------------------------
 int _tmain(int argc, _TCHAR* argv[])
 {
-    std::cout << std::endl << std::endl << std::endl << std::endl;
-    debug("error here");
-    std::cin;
+    //debug("error here");
 
     cGameSettings   settings;
     //settings.init(argc, argv);
