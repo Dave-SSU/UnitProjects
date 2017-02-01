@@ -54,10 +54,13 @@
     <ClInclude Include="cHole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cSpade.h">
+    <ClInclude Include="..\MazeGen\cMaze.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\MazeGen\cMaze.h">
+    <ClInclude Include="..\MazeGen\cVector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cTorch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,14 +104,20 @@
     <ClCompile Include="cHole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cSpade.cpp">
+    <ClCompile Include="cTorch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\MazeGen\cMaze.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\MazeGen\cVector2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

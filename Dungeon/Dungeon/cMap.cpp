@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include <iostream>
 #include <vector>
+#include <conio.h>
 #include "cMap.h"
 #include "cPos.h"
 #include "cOutput.h"
@@ -57,11 +58,24 @@ void        cMap::generate()
     if (nullptr != pMaze)
     {
         pMaze->printOn();
-     
-//        pMaze->create(rand(), nWidth, nHeight);
-        while (1)
-        {
-            pMaze->create(rand(), (rand() % 15 + 10) | 0x1, (rand() % 15 + 10) | 0x1);
+
+#if 1	// Force
+
+		while (1)
+		{
+			pMaze->create(rand(), (rand() % 15 + 10) | 0x1, (rand() % 15 + 10) | 0x1);
+
+			//#ifdef _DEBUG
+			// put a pause in so maze can be inspected visually
+			std::cout << std::endl << "press a key to continue" << std::endl;
+			_getch();
+			//#endif
+
+#else
+
+		pMaze->create(rand(), nWidth, nHeight);
+
+#endif
             cOutput& out = cOutput::getObj();
             out.fillScreen(' ', 0);
         }

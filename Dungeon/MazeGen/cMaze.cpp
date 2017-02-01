@@ -12,23 +12,19 @@
 * All credit for this version of the code and it's original goes to Jay Seong.             * 
 *******************************************************************************************/
 
+#define	_ENABLE_PRINTING 1
+
+#if (_ENABLE_PRINTING)
+#include <windows.h>
+#include <conio.h>
+#endif
+
 #include <iostream>
 #include <stack>
 #include <random>
 #include <time.h>
 #include "cMaze.h"
 
-#ifdef _DEBUG
-
-#include <windows.h>
-#include <conio.h>
-#define _CONSOLE_OUTPUT 1
-
-#else
-
-#define print()
-
-#endif
 
 const unsigned int SIGNED_MASK = 0x7FFFFFF;
 
@@ -64,7 +60,7 @@ void    cMaze::reset()
     m_strings.erase(m_strings.begin(), m_strings.end());
 	m_endpoints.erase(m_endpoints.begin(), m_endpoints.end());
 
-    m_start.m_x = m_start.m_y = m_end.m_x = m_end.m_y = m_dimensions.m_x = m_dimensions.m_y = 0;
+    m_start.m_x = m_start.m_y = m_exit.m_x = m_exit.m_y = m_dimensions.m_x = m_dimensions.m_y = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -107,13 +103,6 @@ bool    cMaze::create(int seed, int width, int height)
         std::string s(p_chars[r], m_dimensions.m_x);
         m_strings.push_back(s);
     }
-
-#ifdef _DEBUG
-    // put a pause in so maze can be inspected visually
-    std::cout << std::endl << "press a key to continue" << std::endl;
-    _getch();
-#endif
-
     return true;
 }
 
@@ -288,9 +277,9 @@ void    cMaze::generateMaze()
             print();
     }
 
-    m_end = randPos;
+    m_exit = randPos;
 	m_endpoints.push_back(randPos);
-    p_Cells[m_end.m_y][m_end.m_x].display = getExitChar();
+    p_Cells[m_exit.m_y][m_exit.m_x].display = getExitChar();
     if (m_printGeneration)
         print();
 }
@@ -301,16 +290,17 @@ const std::vector<std::string>&	cMaze::getStrings()
     return const_cast<const std::vector<std::string>&>(m_strings);
 }
 
+//-----------------------------------------------------------------------------
 const std::vector<cVector2>&	cMaze::getEndpoints()
 {
 	return const_cast<const std::vector<cVector2>&>(m_endpoints); 
 }
 
-#if _CONSOLE_OUTPUT
 //-----------------------------------------------------------------------------
 void        cMaze::print()
 {
-    HANDLE hOut;
+#if (_ENABLE_PRINTING)
+	HANDLE hOut;
     COORD position;
     hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     position.X = 0;
@@ -323,8 +313,8 @@ void        cMaze::print()
         for (int c = 0; c < m_dimensions.m_x; c++)
             std::cout << p_Cells[r][c].display;
     }
-}
 #endif
+}
 
 //-----------------------------------------------------------------------------
 bool    cMaze::getStart(int& col, int& row)
@@ -341,8 +331,8 @@ bool    cMaze::getExit(int& col, int& row)
 {
     if (nullptr == p_chars)
         return false;
-    col = m_end.m_x;
-    row = m_end.m_y;
+    col = m_exit.m_x;
+    row = m_exit.m_y;
     return true;
 }
 

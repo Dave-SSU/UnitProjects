@@ -75,7 +75,7 @@ protected:
 	char    setPositionValue(int col, int row, char value);
 
     cVector2    m_start{ 0,0 };         // maze starting point
-    cVector2    m_end{ 0,0 };           // designated end/finish point
+    cVector2    m_exit{ 0,0 };          // designated end/finish point
     cVector2    m_dimensions{ 0,0 };    // size of the maze: x=width/columns, y=height/rows
     int         m_seed{ 0 };            // seed used to generate the maze
 	std::mt19937 m_mtRand;				// mersenne-twister object
