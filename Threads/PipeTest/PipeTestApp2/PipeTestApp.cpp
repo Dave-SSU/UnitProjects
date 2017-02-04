@@ -237,12 +237,17 @@ BOOL CALLBACK   mainDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case ID_ENGINE:
-                    if (IsDlgButtonChecked(hWnd, ID_DEBUGENGINE))
-                        launchEngine("gnuchess.exe", NULL ); // DChess1_0_2
-                    else                    
-                        //launchEngine("wcrafty-176.exe", "");
-                        launchEngine("Reuben.exe", "");
-
+					if (IsDlgButtonChecked(hWnd, ID_DEBUGENGINE))
+					{
+						if (0 != launchEngine("gnuchess.exe", NULL))
+							return TRUE;
+					}
+					else
+					{
+						//launchEngine("wcrafty-176.exe", "");
+						if (0 != launchEngine("Reuben.exe", ""))
+							return TRUE;
+					}
                     EnableWindow(GetDlgItem(hWnd, ID_ENGINE), FALSE);
                     EnableWindow(GetDlgItem(hWnd, ID_ENGINECLOSE), TRUE);
                     break;
@@ -337,6 +342,15 @@ static int      launchEngine(LPSTR szEngine, LPSTR szCmdLine)
 		       NULL,
 		       &pAPC->siEngineStartInfo, /* STARTUPINFO pointer */
 		       &pAPC->piEngineProcessInfo); /* receives PROCESS_INFORMATION */
+
+	if (!bSuccess)
+	{
+		char szMsg[128];
+		wsprintf(szMsg, "ERROR %d : ", GetLastError());
+		OutputDebugString(szMsg);
+		GetCurrentDirectory(127, szMsg);
+		OutputDebugString(szMsg);
+	}
 
     // Close the pipe handles only the engine will use
     CloseHandle(hEngineRead);
