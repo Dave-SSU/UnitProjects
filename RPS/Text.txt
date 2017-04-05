@@ -1,0 +1,21 @@
+Notes:
+
+Conventions: This code uses my habits, and not anything that I recommend or discourage, 
+	but it works for me. 
+
+- all classes begin with a small 'c' - such as cBicycle. 
+- struct types begin with underscore: '_'
+- enumerated types begin with a small 'e'
+- I mostly use a style called simplifed Hungarian notation:
+	- pointers always start with 'p'
+	- I sometimes preface other types: integers use 'n', strings with 'str', etc.
+	- I don't bother with the 'm_' for class members. Almost everything is a class
+		member or an obvious parameter, so there's no point.
+
+
+
+
+// To Do list
+
+- handle keyboard repeat rate
+- end of game - display the record for ~2 secs before exit
